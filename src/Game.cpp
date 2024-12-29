@@ -6,21 +6,18 @@
 #include <algorithm>
 
 Game::Game()
-    : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::Default, sf::State::Windowed,
-             sf::ContextSettings(0, 0, 8)),
+    : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::Default),
       score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
-    if (!settings.loadFont("C:/Users/julek/CLionProjects/ape_quest_type/assets/fonts/arial.ttf")) {
+    if (!settings.loadFont("assets/fonts/arial.ttf")) {
         throw std::runtime_error("Failed to load font!");
     }
 
     if (!settings.loadBackground("C:/Users/julek/CLionProjects/ape_quest_type/assets/background.jpg")) {
         throw std::runtime_error("Failed to load background image!");
     }
-
-
 
     loadWordsFromFile("C:/Users/julek/CLionProjects/ape_quest_type/assets/words.txt");
     checkWord();

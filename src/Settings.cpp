@@ -5,12 +5,10 @@ Settings::Settings(): backgroundSprite(backgroundTexture) {
 }
 
 bool Settings::loadFont(const std::string& fontPath) {
-    try {
-        font = sf::Font(fontPath);
-        return true;
-    } catch (const std::exception& e) {
+    if (!font.openFromFile(fontPath)) {
         return false;
     }
+    return true;
 }
 
 bool Settings::loadBackground(const std::string& backgroundPath) {

@@ -35,3 +35,4 @@ add_executable(ape_quest_type
 )
 
 target_link_libraries(ape_quest_type PRIVATE fmt SFML::Graphics SFML::Window SFML::System)
+file(COPY ${CMAKE_SOURCE_DIR}/../assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
