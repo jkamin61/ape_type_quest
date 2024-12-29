@@ -15,11 +15,7 @@ Game::Game()
         throw std::runtime_error("Failed to load font!");
     }
 
-    if (!settings.loadBackground("C:/Users/julek/CLionProjects/ape_quest_type/assets/background.jpg")) {
-        throw std::runtime_error("Failed to load background image!");
-    }
-
-    loadWordsFromFile("C:/Users/julek/CLionProjects/ape_quest_type/assets/words.txt");
+    loadWordsFromFile("assets/words.txt");
     checkWord();
     setupStartButton();
 }
@@ -27,7 +23,6 @@ Game::Game()
 void Game::render() {
     window.clear();
 
-    window.draw(settings.getBackgroundSprite());
 
     for (const auto &word: words) {
         window.draw(word.getText());
@@ -64,7 +59,6 @@ void Game::render() {
 }
 
 void Game::update() {
-    settings.updateBackgroundScale(window.getSize());
 
     std::erase_if(words,
                   [this](const Word &word) {
