@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 Word::Word(const std::string& text, const sf::Vector2f& position, const sf::Font& font, float speedFactor)
-    : speed( 0.01 + speedFactor, 0), wordText(font, text, 14) {
+    : speed( 0.01 + speedFactor, 0), wordText(font, text, 18) {
     wordText.setPosition(position);
 }
 

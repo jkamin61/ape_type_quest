@@ -21,7 +21,7 @@ private:
     void render();
     void renderStartScreen();
     void loadWordsFromFile(const std::string& filename);
-    void displayWords();
+    void displayScoringPing();
     void checkAllWordsGuessed();
     void checkWord();
     void loadNextWords();
@@ -33,6 +33,8 @@ private:
     std::vector<std::string> wordList;
     std::vector<Word> words;
     std::string typedText;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
 
     int score;
     int level;
