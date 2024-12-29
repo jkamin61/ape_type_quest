@@ -41,7 +41,7 @@ void Game::render() {
 
     sf::Text typed(settings.getFont(), typedText, 35);
     typed.setPosition({15.f, static_cast<float>(window.getSize().y) - 135.f});
-    typed.setFillColor(sf::Color::Green);
+    typed.setFillColor(sf::Color::White);
     window.draw(typed);
 
     sf::Text scoreText(settings.getFont(), fmt::format("Score: {}", score), 35);
@@ -74,6 +74,7 @@ void Game::update() {
                   });
 
     if (score >= level * 100) {
+        roundCounter++;
         level++;
     }
 
