@@ -49,7 +49,7 @@ void Game::render() {
 
     if (cursorVisible) {
         sf::Text cursor(settings.getFont(), "|", 35);
-        cursor.setPosition({15.f, static_cast<float>(window.getSize().y) - 70.f});
+        cursor.setPosition({5.f, static_cast<float>(window.getSize().y) - 70.f});
         cursor.setFillColor(sf::Color::White);
         window.draw(cursor);
     }
