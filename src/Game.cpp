@@ -100,9 +100,10 @@ void Game::update() {
                       return false;
                   });
 
-    if (score >= level * 100) {
+    if (score >= level * 200) {
         roundCounter++;
         level++;
+        backgroundX = 0.0f;
     }
 
     loadNextWords();
@@ -230,11 +231,10 @@ void Game:: displayScoringPing() {
 void Game::loadNextWords() {
     if (allWordsGuessed) {
         allWordsGuessed = false;
-
         float yPosition = 50;
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 18; ++i) {
             std::string randomWord = wordList[rand() % wordList.size()];
-            words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * 0.25f);
+            words.emplace_back(randomWord, sf::Vector2f(static_cast<float>(rand() % 100), yPosition), settings.getFont(), level * 0.25f);
             yPosition += 50;
         }
     }
