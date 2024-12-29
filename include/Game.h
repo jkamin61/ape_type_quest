@@ -10,7 +10,6 @@
 class Game {
 public:
     Game();
-
     void run();
 
 private:
@@ -32,9 +31,8 @@ private:
     Settings settings;
     std::vector<std::string> wordList;
     std::vector<Word> words;
-    std::string typedText;
     sf::Texture backgroundTexture;
-    sf::Sprite backgroundSprite;
+    std::string typedText;
 
     int score;
     int level;

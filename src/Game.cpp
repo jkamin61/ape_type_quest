@@ -6,7 +6,7 @@
 #include <algorithm>
 
 Game::Game()
-    : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::Default), backgroundSprite(backgroundTexture),
+    : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::Default),
       score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
@@ -19,8 +19,6 @@ Game::Game()
         throw std::runtime_error("Failed to load background image!");
     }
 
-    backgroundSprite.setTexture(backgroundTexture);
-
     loadWordsFromFile("assets/words.txt");
     checkWord();
     setupStartButton();
@@ -29,10 +27,11 @@ Game::Game()
 void Game::render() {
     window.clear();
 
+    sf::Sprite backgroundSprite(backgroundTexture);
     backgroundSprite.setScale({
-            static_cast<float>(window.getSize().x) / backgroundTexture.getSize().x,
-            static_cast<float>(window.getSize().y) / backgroundTexture.getSize().y
-        });
+                static_cast<float>(window.getSize().x) / backgroundTexture.getSize().x,
+                static_cast<float>(window.getSize().y) / backgroundTexture.getSize().y
+            });
 
     window.draw(backgroundSprite);
 
