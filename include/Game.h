@@ -25,20 +25,27 @@ private:
     void checkWord();
     void loadNextWords();
     void gameOver();
+    void exitGame();
 
     sf::RenderWindow window;
     sf::RectangleShape startButton;
+    sf::RectangleShape exitButton;
     Settings settings;
     std::vector<std::string> wordList;
     std::vector<Word> words;
     sf::Texture backgroundTexture;
+    sf::Clock cursorClock;
     std::string typedText;
 
+    float backgroundSpeed;
+    float backgroundX;
     int score;
     int level;
     int roundCounter;
     bool allWordsGuessed;
     bool gameStarted;
+    bool cursorVisible;
+
 };
 
 #endif // GAME_H

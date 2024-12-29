@@ -4,10 +4,11 @@
 #include <ctime>
 #include "fmt/core.h"
 #include <algorithm>
+#include <SFML/System/Clock.hpp>
 
 Game::Game()
-    : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::Default),
-      score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false) {
+    : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
+      score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false), backgroundSpeed(100.0f), backgroundX(0.0f), cursorVisible(true) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
@@ -28,10 +29,12 @@ void Game::render() {
     window.clear();
 
     sf::Sprite backgroundSprite(backgroundTexture);
-    backgroundSprite.setScale({
-                static_cast<float>(window.getSize().x) / backgroundTexture.getSize().x,
-                static_cast<float>(window.getSize().y) / backgroundTexture.getSize().y
-            });
+
+    backgroundSprite.setPosition({-backgroundX, 0});
+    window.draw(backgroundSprite);
+
+    backgroundSprite.setPosition({backgroundTexture.getSize().x + backgroundX, 0});
+    window.draw(backgroundSprite);
 
     window.draw(backgroundSprite);
 
@@ -40,29 +43,53 @@ void Game::render() {
     }
 
     sf::Text typed(settings.getFont(), typedText, 35);
-    typed.setPosition({15.f, static_cast<float>(window.getSize().y) - 135.f});
+    typed.setPosition({15.f, static_cast<float>(window.getSize().y) - 70.f});
     typed.setFillColor(sf::Color::White);
     window.draw(typed);
 
+    if (cursorVisible) {
+        sf::Text cursor(settings.getFont(), "|", 35);
+        cursor.setPosition({15.f, static_cast<float>(window.getSize().y) - 70.f});
+        cursor.setFillColor(sf::Color::White);
+        window.draw(cursor);
+    }
+
     sf::Text scoreText(settings.getFont(), fmt::format("Score: {}", score), 35);
-    scoreText.setPosition({400.f, static_cast<float>(window.getSize().y) - 135.f});
+    scoreText.setPosition({400.f, static_cast<float>(window.getSize().y) - 70.f});
     scoreText.setFillColor(sf::Color::White);
     window.draw(scoreText);
 
     sf::Text levelText(settings.getFont(), fmt::format("Level: {}", level), 35);
-    levelText.setPosition({600.f, static_cast<float>(window.getSize().y) - 135.f});
+    levelText.setPosition({600.f, static_cast<float>(window.getSize().y) - 70.f});
     levelText.setFillColor(sf::Color::White);
     window.draw(levelText);
 
     sf::Text roundText(settings.getFont(), fmt::format("Round: {}", roundCounter), 35);
-    roundText.setPosition({800.f, static_cast<float>(window.getSize().y) - 135.f});
+    roundText.setPosition({800.f, static_cast<float>(window.getSize().y) - 70.f});
     roundText.setFillColor(sf::Color::White);
     window.draw(roundText);
+
+    sf::Text exitText(settings.getFont(), "Exit", 35);
+    exitText.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
+    exitText.setFillColor(sf::Color::White);
+    window.draw(exitText);
+
+    exitButton.setSize(sf::Vector2f(100, 50));
+    exitButton.setFillColor(sf::Color::Transparent);
+    exitButton.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
+    window.draw(exitButton);
 
     window.display();
 }
 
 void Game::update() {
+
+    float deltaTime = 1.0f / 60.0f;
+
+    backgroundX += backgroundSpeed * deltaTime;
+    if (backgroundX >= backgroundTexture.getSize().x) {
+        backgroundX = 0.0f;
+    }
 
     std::erase_if(words,
                   [this](const Word &word) {
@@ -82,6 +109,37 @@ void Game::update() {
 
     for (auto &word: words) {
         word.move();
+    }
+
+    if (cursorClock.getElapsedTime().asSeconds() >= 0.5f) {
+        cursorVisible = !cursorVisible;
+        cursorClock.restart();
+    }
+}
+
+void Game::processEvents() {
+    while (const std::optional<sf::Event> event = window.pollEvent()) {
+        if (event->is<sf::Event::Closed>()) {
+            window.close();
+        } else if (const auto *textEvent = event->getIf<sf::Event::TextEntered>()) {
+            if (textEvent->unicode == '\b') {
+                if (!typedText.empty()) {
+                    typedText.pop_back();
+                }
+            } else if (textEvent->unicode == '\r' || textEvent->unicode == '\n') {
+                checkWord();
+            } else if (textEvent->unicode < 128) {
+                typedText += static_cast<char>(textEvent->unicode);
+            }
+        } else if (event->is<sf::Event::MouseButtonPressed>()) {
+            if (!gameStarted && startButton.getGlobalBounds().contains(
+                    window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                startGame();
+                    } else if (exitButton.getGlobalBounds().contains(
+                    window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                        exitGame();
+                    }
+        }
     }
 }
 
@@ -109,29 +167,6 @@ void Game::run() {
             render();
         } else {
             renderStartScreen();
-        }
-    }
-}
-
-void Game::processEvents() {
-    while (const std::optional<sf::Event> event = window.pollEvent()) {
-        if (event->is<sf::Event::Closed>()) {
-            window.close();
-        } else if (const auto *textEvent = event->getIf<sf::Event::TextEntered>()) {
-            if (textEvent->unicode == '\b') {
-                if (!typedText.empty()) {
-                    typedText.pop_back();
-                }
-            } else if (textEvent->unicode == '\r' || textEvent->unicode == '\n') {
-                checkWord();
-            } else if (textEvent->unicode < 128) {
-                typedText += static_cast<char>(textEvent->unicode);
-            }
-        } else if (event->is<sf::Event::MouseButtonPressed>()) {
-            if (!gameStarted && startButton.getGlobalBounds().contains(
-                    window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                startGame();
-            }
         }
     }
 }
@@ -203,6 +238,10 @@ void Game::loadNextWords() {
             yPosition += 50;
         }
     }
+}
+
+void Game::exitGame() {
+    window.close();
 }
 
 void Game::gameOver() {
