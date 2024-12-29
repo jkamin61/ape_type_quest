@@ -33,6 +33,7 @@ private:
     std::vector<std::string> wordList;
     std::vector<Word> words;
     std::string typedText;
+
     int score;
     int level;
     int roundCounter;

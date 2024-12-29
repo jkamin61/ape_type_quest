@@ -11,7 +11,7 @@ Game::Game()
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
-    if (!settings.loadFont("assets/fonts/arial.ttf")) {
+    if (!settings.loadFont("assets/fonts/breatheiii.ttf")) {
         throw std::runtime_error("Failed to load font!");
     }
 
@@ -22,7 +22,6 @@ Game::Game()
 
 void Game::render() {
     window.clear();
-
 
     for (const auto &word: words) {
         window.draw(word.getText());

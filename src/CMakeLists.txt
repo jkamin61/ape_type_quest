@@ -29,10 +29,9 @@ add_executable(ape_quest_type
         Game.cpp
         Settings.cpp
         ../include/Game.h
-        Game.cpp
         ../include/Settings.h
-        Settings.cpp
 )
 
 target_link_libraries(ape_quest_type PRIVATE fmt SFML::Graphics SFML::Window SFML::System)
-file(COPY ${CMAKE_SOURCE_DIR}/../assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+file(COPY ${CMAKE_SOURCE_DIR}/../assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
