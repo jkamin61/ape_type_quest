@@ -87,13 +87,13 @@ void Game::update() {
     float deltaTime = 1.0f / 60.0f;
 
     backgroundX += backgroundSpeed * deltaTime;
-    if (backgroundX >= backgroundTexture.getSize().x) {
+    if (backgroundX >= (backgroundTexture.getSize().x / 2)) {
         backgroundX = 0.0f;
     }
 
     std::erase_if(words,
                   [this](const Word &word) {
-                      if (word.isOffScreen()) {
+                      if (word.isOffScreen(window.getSize().x)) {
                           gameOver();
                           return true;
                       }

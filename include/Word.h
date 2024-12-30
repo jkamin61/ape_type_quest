@@ -8,7 +8,7 @@ class Word {
 public:
     Word(const std::string& text, const sf::Vector2f& position, const sf::Font& font, float speedFactor = 0.0f);
     void move();
-    bool isOffScreen() const;
+    bool isOffScreen(float bound) const;
     const sf::Text& getText() const;
 
 private:

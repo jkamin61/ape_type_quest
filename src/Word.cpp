@@ -10,8 +10,8 @@ void Word::move() {
     wordText.move(speed);
 }
 
-bool Word::isOffScreen() const {
-    return wordText.getPosition().x > 800;
+bool Word::isOffScreen(float bound) const {
+    return wordText.getPosition().x > bound;
 }
 
 const sf::Text& Word::getText() const {
