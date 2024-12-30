@@ -8,7 +8,8 @@
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
-      score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false), backgroundSpeed(100.0f), backgroundX(0.0f), cursorVisible(true) {
+      score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false), backgroundSpeed(100.0f),
+      backgroundX(0.0f), cursorVisible(true) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
@@ -86,7 +87,6 @@ void Game::render() {
 }
 
 void Game::update() {
-
     float deltaTime = 1.0f / 60.0f;
 
     backgroundX += backgroundSpeed * deltaTime;
@@ -109,11 +109,10 @@ void Game::update() {
         backgroundX = 0.0f;
     }
 
-    loadNextWords();
-
     for (auto &word: words) {
         word.move();
     }
+    loadNextWords();
 
     if (cursorClock.getElapsedTime().asSeconds() >= 0.5f) {
         cursorVisible = !cursorVisible;
@@ -139,10 +138,10 @@ void Game::processEvents() {
             if (!gameStarted && startButton.getGlobalBounds().contains(
                     window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 startGame();
-                    } else if (exitButton.getGlobalBounds().contains(
-                    window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                        exitGame();
-                    }
+            } else if (exitButton.getGlobalBounds().contains(
+                window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                exitGame();
+            }
         }
     }
 }
@@ -219,6 +218,10 @@ void Game::checkWord() {
     if (it != words.end()) {
         displayScoringPing();
         score += 10;
+
+        sf::Text greenText = it->getText();
+        greenText.setFillColor(sf::Color::Green);
+
         words.erase(it);
     }
 
@@ -227,8 +230,7 @@ void Game::checkWord() {
     typedText.clear();
 }
 
-void Game:: displayScoringPing() {
-
+void Game::displayScoringPing() {
 }
 
 void Game::loadNextWords() {
@@ -237,7 +239,8 @@ void Game::loadNextWords() {
         float yPosition = 50;
         for (int i = 0; i < 18; ++i) {
             std::string randomWord = wordList[rand() % wordList.size()];
-            words.emplace_back(randomWord, sf::Vector2f(static_cast<float>(rand() % 100), yPosition), settings.getFont(), level * 0.25f);
+            words.emplace_back(randomWord, sf::Vector2f(static_cast<float>(rand() % 100), yPosition),
+                               settings.getFont(), level * 0.25f);
             yPosition += 50;
         }
     }
