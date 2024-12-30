@@ -28,15 +28,18 @@ Game::Game()
 void Game::render() {
     window.clear();
 
+    float textureWidth = static_cast<float>(backgroundTexture.getSize().x);
+    float firstTexturePosition = -backgroundX;
+    float secondTexturePosition = firstTexturePosition + textureWidth;
+
     sf::Sprite backgroundSprite(backgroundTexture);
-
-    backgroundSprite.setPosition({-backgroundX, 0});
+    backgroundSprite.setPosition({firstTexturePosition, 0});
     window.draw(backgroundSprite);
 
-    backgroundSprite.setPosition({backgroundTexture.getSize().x + backgroundX, 0});
-    window.draw(backgroundSprite);
-
-    window.draw(backgroundSprite);
+    if (secondTexturePosition < window.getSize().x) {
+        backgroundSprite.setPosition({secondTexturePosition, 0});
+        window.draw(backgroundSprite);
+    }
 
     for (const auto &word: words) {
         window.draw(word.getText());
@@ -87,7 +90,7 @@ void Game::update() {
     float deltaTime = 1.0f / 60.0f;
 
     backgroundX += backgroundSpeed * deltaTime;
-    if (backgroundX >= (backgroundTexture.getSize().x / 2)) {
+    if (backgroundX >= (backgroundTexture.getSize().x)) {
         backgroundX = 0.0f;
     }
 
