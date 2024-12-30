@@ -100,7 +100,7 @@ void Game::update() {
                       return false;
                   });
 
-    if (score >= level * 200) {
+    if (score >= level * 180) {
         roundCounter++;
         level++;
         backgroundX = 0.0f;
