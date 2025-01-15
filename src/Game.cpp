@@ -242,19 +242,27 @@ void Game::checkWord() {
 }
 
 void Game::loadNextWords() {
+    if (wordList.empty()) {
+        fmt::print("Word list is empty. Reloading words...\n");
+        loadWordsFromFile("assets/words.txt");
+        if (wordList.empty()) {
+            fmt::print("No words available to load. Exiting...\n");
+            return;
+        }
+    }
+
     float yPosition = rand() % 200;
     for (int i = 0; i < 11; ++i) {
         if (wordList.empty()) {
-            //TODO: Display ending screen
-            return;
+            fmt::print("Word list became empty during word generation.\n");
+            break;
         }
         int randomIndex = rand() % wordList.size();
         std::string randomWord = wordList[randomIndex];
-        words.emplace_back(randomWord, sf::Vector2f(0, yPosition),
-                           settings.getFont(), level * 0.95f);
-        wordList.erase(wordList.begin() + randomIndex);
+        words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * 0.95f);
         yPosition += 40 + rand() % 60;
     }
+
     wordsLoaded = false;
 }
 
