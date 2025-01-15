@@ -20,11 +20,10 @@ private:
     void render();
     void renderStartScreen();
     void loadWordsFromFile(const std::string& filename);
-    void displayScoringPing();
     void checkAllWordsGuessed();
     void checkWord();
     void loadNextWords();
-    void gameOver();
+    void countMissedWords();
     void exitGame();
 
     sf::RenderWindow window;
@@ -45,7 +44,8 @@ private:
     bool allWordsGuessed;
     bool gameStarted;
     bool cursorVisible;
-
+    int notTypedWords;
+    bool wordsLoaded;
 };
 
 #endif // GAME_H

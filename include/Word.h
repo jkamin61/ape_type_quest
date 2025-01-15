@@ -10,6 +10,7 @@ public:
     void move();
     bool isOffScreen(float bound) const;
     const sf::Text& getText() const;
+    void resetPosition(const sf::Vector2f& newPosition);
 
 private:
     sf::Text wordText;
