@@ -99,14 +99,15 @@ void Game::update() {
         backgroundX = 0.0f;
     }
 
-    std::erase_if(words,
-                  [this](const Word &word) {
-                      if (word.isOffScreen(window.getSize().x)) {
-                          countMissedWords();
-                          return true;
-                      }
-                      return false;
-                  });
+    std::erase_if(words, [this](Word &word) {
+        if (word.isOffScreen(window.getSize().x)) {
+            countMissedWords();
+            return true;
+        } else if (word.isMatchExpired(0.5f)) {
+            return true;
+        }
+        return false;
+    });
 
     if (score >= level * 180) {
         roundCounter++;
@@ -226,18 +227,14 @@ void Game::checkWord() {
     auto it = std::find_if(words.begin(), words.end(), [this](const Word &word) {
         return word.getText().getString() == typedText;
     });
-
     if (it != words.end()) {
         score += 10;
-
         sf::Text greenText = it->getText();
-        greenText.setFillColor(sf::Color::Green);
-
-        words.erase(it);
+        it->markAsMatched();
+    } else {
+        fmt::print("Incorrect word typed: {}\n", typedText);
     }
-
-    checkAllWordsGuessed();
-
+    // checkAllWordsGuessed();
     typedText.clear();
 }
 
