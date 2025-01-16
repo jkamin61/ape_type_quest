@@ -9,7 +9,7 @@
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
       score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false), backgroundSpeed(100.0f),
-      backgroundX(0.0f), cursorVisible(true) {
+      backgroundX(0.0f), cursorVisible(true), notTypedWords(0), wordsLoaded(false) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
@@ -73,6 +73,11 @@ void Game::render() {
     roundText.setFillColor(sf::Color::White);
     window.draw(roundText);
 
+    sf::Text missedWordsText(settings.getFont(), fmt::format("Missed: {}", notTypedWords), 35);
+    missedWordsText.setPosition({1000.f, static_cast<float>(window.getSize().y) - 70.f});
+    missedWordsText.setFillColor(sf::Color::White);
+    window.draw(missedWordsText);
+
     sf::Text exitText(settings.getFont(), "Exit", 35);
     exitText.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
     exitText.setFillColor(sf::Color::White);
@@ -97,7 +102,7 @@ void Game::update() {
     std::erase_if(words,
                   [this](const Word &word) {
                       if (word.isOffScreen(window.getSize().x)) {
-                          gameOver();
+                          countMissedWords();
                           return true;
                       }
                       return false;
@@ -112,7 +117,14 @@ void Game::update() {
     for (auto &word: words) {
         word.move();
     }
-    loadNextWords();
+    if (!words.empty() && words.back().getText().getPosition().x > 150) {
+        if (!wordsLoaded) {
+            loadNextWords();
+            wordsLoaded = true;
+        }
+    } else {
+        wordsLoaded = false;
+    }
 
     if (cursorClock.getElapsedTime().asSeconds() >= 0.5f) {
         cursorVisible = !cursorVisible;
@@ -216,7 +228,6 @@ void Game::checkWord() {
     });
 
     if (it != words.end()) {
-        displayScoringPing();
         score += 10;
 
         sf::Text greenText = it->getText();
@@ -230,27 +241,35 @@ void Game::checkWord() {
     typedText.clear();
 }
 
-void Game::displayScoringPing() {
-}
-
 void Game::loadNextWords() {
-    if (allWordsGuessed) {
-        allWordsGuessed = false;
-        float yPosition = 50;
-        for (int i = 0; i < 18; ++i) {
-            std::string randomWord = wordList[rand() % wordList.size()];
-            words.emplace_back(randomWord, sf::Vector2f(static_cast<float>(rand() % 100), yPosition),
-                               settings.getFont(), level * 0.25f);
-            yPosition += 50;
+    if (wordList.empty()) {
+        fmt::print("Word list is empty. Reloading words...\n");
+        loadWordsFromFile("assets/words.txt");
+        if (wordList.empty()) {
+            fmt::print("No words available to load. Exiting...\n");
+            return;
         }
     }
+
+    float yPosition = rand() % 200;
+    for (int i = 0; i < 11; ++i) {
+        if (wordList.empty()) {
+            fmt::print("Word list became empty during word generation.\n");
+            break;
+        }
+        int randomIndex = rand() % wordList.size();
+        std::string randomWord = wordList[randomIndex];
+        words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * 0.95f);
+        yPosition += 40 + rand() % 60;
+    }
+
+    wordsLoaded = false;
 }
 
 void Game::exitGame() {
     window.close();
 }
 
-void Game::gameOver() {
-    window.close();
-    fmt::print("Game Over! Final Score: {}\n", score);
+void Game::countMissedWords() {
+    notTypedWords++;
 }
