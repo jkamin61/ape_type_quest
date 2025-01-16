@@ -25,6 +25,7 @@ private:
     void loadNextWords();
     void countMissedWords();
     void exitGame();
+    void renderEndScreen();
 
     sf::RenderWindow window;
     sf::RectangleShape startButton;
@@ -34,13 +35,13 @@ private:
     std::vector<Word> words;
     sf::Texture backgroundTexture;
     sf::Clock cursorClock;
+    sf::Clock gameClock;
     std::string typedText;
 
     float backgroundSpeed;
     float backgroundX;
     int score;
     int level;
-    int roundCounter;
     bool allWordsGuessed;
     bool gameStarted;
     bool cursorVisible;

@@ -8,8 +8,8 @@
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
-      score(0), level(1), roundCounter(0), allWordsGuessed(false), gameStarted(false), backgroundSpeed(100.0f),
-      backgroundX(0.0f), cursorVisible(true), notTypedWords(0), wordsLoaded(false) {
+      backgroundSpeed(100.0f), backgroundX(0.0f), score(0), level(1), allWordsGuessed(false),
+      gameStarted(false), cursorVisible(true), notTypedWords(0), wordsLoaded(false) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
@@ -24,6 +24,8 @@ Game::Game()
     loadWordsFromFile("assets/words.txt");
     checkWord();
     setupStartButton();
+
+    gameClock.restart();
 }
 
 void Game::render() {
@@ -68,15 +70,16 @@ void Game::render() {
     levelText.setFillColor(sf::Color::White);
     window.draw(levelText);
 
-    sf::Text roundText(settings.getFont(), fmt::format("Round: {}", roundCounter), 35);
-    roundText.setPosition({800.f, static_cast<float>(window.getSize().y) - 70.f});
-    roundText.setFillColor(sf::Color::White);
-    window.draw(roundText);
-
     sf::Text missedWordsText(settings.getFont(), fmt::format("Missed: {}", notTypedWords), 35);
-    missedWordsText.setPosition({1000.f, static_cast<float>(window.getSize().y) - 70.f});
+    missedWordsText.setPosition({800.f, static_cast<float>(window.getSize().y) - 70.f});
     missedWordsText.setFillColor(sf::Color::White);
     window.draw(missedWordsText);
+
+    sf::Time elapsed = gameClock.getElapsedTime();
+    sf::Text timeText(settings.getFont(), fmt::format("Time: {}", elapsed.asSeconds()), 35);
+    timeText.setPosition({1000.f, static_cast<float>(window.getSize().y) - 70.f});
+    timeText.setFillColor(sf::Color::White);
+    window.draw(timeText);
 
     sf::Text exitText(settings.getFont(), "Exit", 35);
     exitText.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
@@ -110,9 +113,10 @@ void Game::update() {
     });
 
     if (score >= level * 180) {
-        roundCounter++;
         level++;
         backgroundX = 0.0f;
+        words.clear();
+        loadNextWords();
     }
 
     for (auto &word: words) {
@@ -181,6 +185,8 @@ void Game::run() {
         if (gameStarted) {
             update();
             render();
+        } else if (allWordsGuessed) {
+            renderEndScreen();
         } else {
             renderStartScreen();
         }
@@ -202,6 +208,17 @@ void Game::renderStartScreen() {
     window.display();
 }
 
+void Game::renderEndScreen() {
+    window.clear();
+
+    sf::Text endText(settings.getFont(), "You guessed all words! Congratulations!", 50);
+    endText.setFillColor(sf::Color::White);
+    endText.setPosition({window.getSize().x / 2.0f - 300.f, window.getSize().y / 2.0f});
+    window.draw(endText);
+
+    window.display();
+}
+
 void Game::loadWordsFromFile(const std::string &filename) {
     std::ifstream file(filename);
     std::string line;
@@ -218,8 +235,10 @@ void Game::loadWordsFromFile(const std::string &filename) {
 }
 
 void Game::checkAllWordsGuessed() {
-    if (words.empty()) {
+    if (words.empty() && wordList.empty()) {
         allWordsGuessed = true;
+        fmt::print("Congratulations! All words guessed.\n");
+        window.close();
     }
 }
 
@@ -231,32 +250,27 @@ void Game::checkWord() {
         score += 10;
         sf::Text greenText = it->getText();
         it->markAsMatched();
-    } else {
-        fmt::print("Incorrect word typed: {}\n", typedText);
     }
-    // checkAllWordsGuessed();
     typedText.clear();
+
+    checkAllWordsGuessed();
 }
 
 void Game::loadNextWords() {
     if (wordList.empty()) {
-        fmt::print("Word list is empty. Reloading words...\n");
-        loadWordsFromFile("assets/words.txt");
-        if (wordList.empty()) {
-            fmt::print("No words available to load. Exiting...\n");
-            return;
-        }
+        fmt::print("Word list is empty. No more words available.\n");
+        return;
     }
 
     float yPosition = rand() % 200;
-    for (int i = 0; i < 11; ++i) {
+    for (int i = 0; i < 4 + rand() % 6; ++i) {
         if (wordList.empty()) {
             fmt::print("Word list became empty during word generation.\n");
             break;
         }
         int randomIndex = rand() % wordList.size();
         std::string randomWord = wordList[randomIndex];
-        words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * 0.95f);
+        words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * 0.35f);
         yPosition += 40 + rand() % 60;
     }
 

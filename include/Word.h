@@ -14,6 +14,7 @@ public:
     void markAsMatched();
     bool isMatchExpired(float duration) const;
     bool matched() const;
+    void setSpeed(float newSpeedFactor);
 
 private:
     sf::Text wordText;
