@@ -42,7 +42,7 @@ void Game::setupStartMenuButtons() {
 
     chooseDifficultyButton.setSize(sf::Vector2f(340, 60));
     chooseDifficultyButton.setFillColor(sf::Color::Black);
-    chooseDifficultyButton.setPosition({centerX - 180, centerY });
+    chooseDifficultyButton.setPosition({centerX - 180, centerY});
 
     uploadWordsButton.setSize(sf::Vector2f(340, 60));
     uploadWordsButton.setFillColor(sf::Color::Black);
@@ -87,6 +87,26 @@ void Game::renderStartScreen() {
     uploadWordsText.setPosition({centerX, centerY + 120});
     exitText.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
 
+    if (startText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        startText.setFillColor(sf::Color::Yellow);
+    }
+
+    if (chooseFontText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        chooseFontText.setFillColor(sf::Color::Yellow);
+    }
+
+    if (chooseDifficultyText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        chooseDifficultyText.setFillColor(sf::Color::Yellow);
+    }
+
+    if (uploadWordsText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        uploadWordsText.setFillColor(sf::Color::Yellow);
+    }
+
+    if (exitText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        exitText.setFillColor(sf::Color::Yellow);
+    }
+
     window.draw(startText);
     window.draw(chooseFontText);
     window.draw(chooseDifficultyText);
@@ -94,6 +114,44 @@ void Game::renderStartScreen() {
     window.draw(exitText);
 
     window.display();
+}
+
+void Game::renderFontSelectionScreen() {
+    window.clear();
+
+    sf::Text title(settings.getFont(), "Select a Font", 50);
+    title.setFillColor(sf::Color::White);
+    title.setPosition({window.getSize().x / 2.0f - title.getGlobalBounds().size.y / 2.0f, 20});
+    window.draw(title);
+
+    float yPosition = 100.0f;
+    for (size_t i = 0; i < availableFonts.size(); ++i) {
+        sf::Text fontText(settings.getFont(), availableFonts[i], 30);
+        fontText.setFillColor(sf::Color::White);
+        fontText.setPosition({50.0f, yPosition});
+
+        if (fontText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+            fontText.setFillColor(sf::Color::Yellow);
+        }
+
+        window.draw(fontText);
+        yPosition += 50.0f;
+    }
+
+    window.display();
+}
+
+void Game::loadAvailableFonts(const std::string &directory) {
+    availableFonts.clear();
+    for (const auto &entry: std::filesystem::directory_iterator(directory)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".ttf") {
+            availableFonts.push_back(entry.path().string());
+        }
+    }
+
+    if (availableFonts.empty()) {
+        throw std::runtime_error("No fonts found in the directory: " + directory);
+    }
 }
 
 void Game::render() {
@@ -226,22 +284,49 @@ void Game::processEvents() {
             } else if (exitButton.getGlobalBounds().contains(
                 window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 exitGame();
-            } else if (exitMenuButton.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+            } else if (exitMenuButton.getGlobalBounds().contains(
+                window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 exitGame();
             } else if (!gameStarted && chooseFontButton.getGlobalBounds().contains(
-                window.mapPixelToCoords(sf::Mouse::getPosition(window))) ) {
-                fmt::print("Choose font button clicked\n");
+                           window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                loadAvailableFonts("assets/fonts");
+                while (window.isOpen()) {
+                    renderFontSelectionScreen();
+
+                    while (window.pollEvent()) {
+                        if (event->is<sf::Event::Closed>()) {
+                            window.close();
+                        } else if (event->is<sf::Event::MouseButtonPressed>()) {
+                            const auto &mouseEvent = event->getIf<sf::Event::MouseButtonPressed>();
+                            sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                            if (mouseEvent->button == sf::Mouse::Button::Left) {
+                                float yPosition = 100.0f;
+
+                                for (size_t i = 0; i < availableFonts.size(); ++i) {
+                                    sf::Text fontText(settings.getFont(), availableFonts[i], 30);
+                                    fontText.setPosition({50.0f, yPosition});
+
+                                    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && fontText.getGlobalBounds().contains(mousePosition)) {
+                                        settings.loadFont(availableFonts[i]);
+                                        return;
+                                    }
+
+                                    yPosition += 50.0f;
+                                }
+                            }
+                        }
+                    }
+                }
             } else if (!gameStarted && chooseDifficultyButton.getGlobalBounds().contains(
-                window.mapPixelToCoords(sf::Mouse::getPosition(window))) ) {
+                           window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 fmt::print("Choose difficulty button clicked\n");
             } else if (!gameStarted && uploadWordsButton.getGlobalBounds().contains(
-                window.mapPixelToCoords(sf::Mouse::getPosition(window))) ) {
+                           window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 fmt::print("Upload words button clicked\n");
             }
         }
     }
 }
-
 
 
 void Game::startGame() {
@@ -262,7 +347,6 @@ void Game::run() {
         }
     }
 }
-
 
 
 void Game::renderEndScreen() {

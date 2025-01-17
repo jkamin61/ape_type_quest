@@ -26,6 +26,8 @@ private:
     void countMissedWords();
     void exitGame();
     void renderEndScreen();
+    void loadAvailableFonts(const std::string& directory);
+    void renderFontSelectionScreen();
 
     sf::RenderWindow window;
     sf::RectangleShape startButton;
@@ -41,7 +43,7 @@ private:
     sf::Clock cursorClock;
     sf::Clock gameClock;
     std::string typedText;
-
+    std::vector<std::string> availableFonts;
 
     float backgroundSpeed;
     float backgroundX;
