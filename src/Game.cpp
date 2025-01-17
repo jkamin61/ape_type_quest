@@ -23,9 +23,77 @@ Game::Game()
 
     loadWordsFromFile("assets/words.txt");
     checkWord();
-    setupStartButton();
+    setupStartMenuButtons();
 
     gameClock.restart();
+}
+
+void Game::setupStartMenuButtons() {
+    float centerX = window.getSize().x / 2.0f;
+    float centerY = window.getSize().y / 2.0f;
+
+    startButton.setSize(sf::Vector2f(340, 60));
+    startButton.setFillColor(sf::Color::Black);
+    startButton.setPosition({centerX - 180, centerY - 200});
+
+    chooseFontButton.setSize(sf::Vector2f(340, 60));
+    chooseFontButton.setFillColor(sf::Color::Black);
+    chooseFontButton.setPosition({centerX - 180, centerY - 100});
+
+    chooseDifficultyButton.setSize(sf::Vector2f(340, 60));
+    chooseDifficultyButton.setFillColor(sf::Color::Black);
+    chooseDifficultyButton.setPosition({centerX - 180, centerY });
+
+    uploadWordsButton.setSize(sf::Vector2f(340, 60));
+    uploadWordsButton.setFillColor(sf::Color::Black);
+    uploadWordsButton.setPosition({centerX - 180, centerY + 100});
+
+    exitMenuButton.setSize(sf::Vector2f(340, 60));
+    exitMenuButton.setFillColor(sf::Color::Black);
+    exitMenuButton.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
+
+    gameStarted = false;
+}
+
+void Game::renderStartScreen() {
+    window.clear();
+
+    window.draw(startButton);
+    window.draw(chooseFontButton);
+    window.draw(chooseDifficultyButton);
+    window.draw(uploadWordsButton);
+
+    sf::Text startText(settings.getFont(), "Start", 50);
+    startText.setFillColor(sf::Color::White);
+
+    sf::Text chooseFontText(settings.getFont(), "Choose font", 50);
+    chooseFontText.setFillColor(sf::Color::White);
+
+    sf::Text chooseDifficultyText(settings.getFont(), "Choose difficulty", 50);
+    chooseDifficultyText.setFillColor(sf::Color::White);
+
+    sf::Text uploadWordsText(settings.getFont(), "Upload words", 50);
+    uploadWordsText.setFillColor(sf::Color::White);
+
+    sf::Text exitText(settings.getFont(), "Exit", 35);
+    exitText.setFillColor(sf::Color::White);
+
+    float centerX = window.getSize().x / 2.0f - startButton.getSize().x / 2.0f;
+    float centerY = window.getSize().y / 2.0f - startButton.getSize().y / 2.0f;
+
+    startText.setPosition({centerX, centerY - 180});
+    chooseFontText.setPosition({centerX, centerY - 80});
+    chooseDifficultyText.setPosition({centerX, centerY + 20});
+    uploadWordsText.setPosition({centerX, centerY + 120});
+    exitText.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
+
+    window.draw(startText);
+    window.draw(chooseFontText);
+    window.draw(chooseDifficultyText);
+    window.draw(uploadWordsText);
+    window.draw(exitText);
+
+    window.display();
 }
 
 void Game::render() {
@@ -158,21 +226,23 @@ void Game::processEvents() {
             } else if (exitButton.getGlobalBounds().contains(
                 window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 exitGame();
+            } else if (exitMenuButton.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                exitGame();
+            } else if (!gameStarted && chooseFontButton.getGlobalBounds().contains(
+                window.mapPixelToCoords(sf::Mouse::getPosition(window))) ) {
+                fmt::print("Choose font button clicked\n");
+            } else if (!gameStarted && chooseDifficultyButton.getGlobalBounds().contains(
+                window.mapPixelToCoords(sf::Mouse::getPosition(window))) ) {
+                fmt::print("Choose difficulty button clicked\n");
+            } else if (!gameStarted && uploadWordsButton.getGlobalBounds().contains(
+                window.mapPixelToCoords(sf::Mouse::getPosition(window))) ) {
+                fmt::print("Upload words button clicked\n");
             }
         }
     }
 }
 
-void Game::setupStartButton() {
-    startButton.setSize(sf::Vector2f(200, 50));
-    startButton.setFillColor(sf::Color::Black);
 
-    float centerX = window.getSize().x / 2.0f - startButton.getSize().x / 2.0f;
-    float centerY = window.getSize().y / 2.0f - startButton.getSize().y / 2.0f;
-    startButton.setPosition({centerX, centerY});
-
-    gameStarted = false;
-}
 
 void Game::startGame() {
     gameStarted = true;
@@ -193,20 +263,7 @@ void Game::run() {
     }
 }
 
-void Game::renderStartScreen() {
-    window.clear();
 
-    window.draw(startButton);
-
-    sf::Text startText(settings.getFont(), "Start", 50);
-    startText.setFillColor(sf::Color::White);
-    float centerX = window.getSize().x / 2.0f - startButton.getSize().x / 2.0f;
-    float centerY = window.getSize().y / 2.0f - startButton.getSize().y / 2.0f;
-    startText.setPosition({centerX, centerY});
-    window.draw(startText);
-
-    window.display();
-}
 
 void Game::renderEndScreen() {
     window.clear();
