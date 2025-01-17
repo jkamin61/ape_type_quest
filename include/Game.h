@@ -13,7 +13,7 @@ public:
     void run();
 
 private:
-    void setupStartButton();
+    void setupStartMenuButtons();
     void startGame();
     void processEvents();
     void update();
@@ -26,10 +26,16 @@ private:
     void countMissedWords();
     void exitGame();
     void renderEndScreen();
+    void loadAvailableFonts(const std::string& directory);
+    void renderFontSelectionScreen();
 
     sf::RenderWindow window;
     sf::RectangleShape startButton;
     sf::RectangleShape exitButton;
+    sf::RectangleShape exitMenuButton;
+    sf::RectangleShape chooseFontButton;
+    sf::RectangleShape chooseDifficultyButton;
+    sf::RectangleShape uploadWordsButton;
     Settings settings;
     std::vector<std::string> wordList;
     std::vector<Word> words;
@@ -37,6 +43,7 @@ private:
     sf::Clock cursorClock;
     sf::Clock gameClock;
     std::string typedText;
+    std::vector<std::string> availableFonts;
 
     float backgroundSpeed;
     float backgroundX;
