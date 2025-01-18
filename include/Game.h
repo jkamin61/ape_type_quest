@@ -48,6 +48,8 @@ private:
 
     void goBackToMenu();
 
+    void renderUploadWordsScreen();
+
     sf::RenderWindow window;
     sf::RectangleShape startButton;
     sf::RectangleShape exitButton;

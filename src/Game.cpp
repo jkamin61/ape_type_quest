@@ -5,6 +5,7 @@
 #include "fmt/core.h"
 #include <algorithm>
 #include <SFML/System/Clock.hpp>
+#include <nfd.h>
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
@@ -199,6 +200,19 @@ void Game::renderDifficultySelectionScreen() {
     window.display();
 }
 
+void Game::renderUploadWordsScreen() {
+    window.clear();
+    float centerX = window.getSize().x / 2.0f;
+    float centerY = window.getSize().y / 2.0f;
+
+    sf::Text title(settings.getFont(), "Upload Words", 50);
+    title.setFillColor(sf::Color::White);
+    title.setPosition({centerX - title.getGlobalBounds().size.y / 2.0f, 20.f});
+    window.draw(title);
+
+
+    window.display();
+}
 
 void Game::render() {
     window.clear();
@@ -409,7 +423,20 @@ void Game::processEvents() {
                 }
             } else if (!gameStarted && uploadWordsButton.getGlobalBounds().contains(
                            window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                fmt::print("Upload words button clicked\n");
+                nfdchar_t *outPath = nullptr;
+                nfdfilteritem_t filterItem[1] = {{"Text Files", "txt"}};
+                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, nullptr);
+
+                if (result == NFD_OKAY) {
+                    wordList.clear();
+                    loadWordsFromFile(outPath);
+                    fmt::print("Loaded words from: {}\n", outPath);
+                    NFD_FreePath(outPath);
+                } else if (result == NFD_CANCEL) {
+                    fmt::print("User canceled.\n");
+                } else {
+                    fmt::print("Error: {}\n", NFD_GetError());
+                }
             }
         }
     }
