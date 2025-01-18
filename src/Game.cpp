@@ -117,6 +117,22 @@ void Game::renderStartScreen() {
     window.display();
 }
 
+void Game::renderExceedMissedWordsScreen() {
+    window.clear();
+
+    sf::Text title(settings.getFont(), "Game over!", 50);
+    title.setFillColor(sf::Color::White);
+    title.setPosition({window.getSize().x / 2.0f - title.getGlobalBounds().size.x / 2, 20.f});
+    window.draw(title);
+
+    sf::Text scoreText(settings.getFont(), fmt::format("Score: {}", score), 45);
+    scoreText.setPosition({
+        window.getSize().x / 2.0f - scoreText.getGlobalBounds().size.x / 2, window.getSize().y / 2.0f
+    });
+    scoreText.setFillColor(sf::Color::White);
+    window.draw(scoreText);
+}
+
 void Game::renderFontSelectionScreen() {
     window.clear();
 
@@ -302,7 +318,14 @@ void Game::update() {
         return false;
     });
 
-    if (score >= level * 180) {
+    if (notTypedWords >= 25) {
+        renderExceedMissedWordsScreen();
+        window.display();
+        sf::sleep(sf::seconds(3));
+        exitGame();
+    }
+
+    if (score >= level * 100) {
         level++;
         backgroundX = 0.0f;
         words.clear();
@@ -357,7 +380,6 @@ void Game::processEvents() {
                 loadAvailableFonts("assets/fonts");
                 while (window.isOpen()) {
                     renderFontSelectionScreen();
-
                     while (window.pollEvent()) {
                         if (event->is<sf::Event::Closed>()) {
                             window.close();
@@ -455,7 +477,7 @@ void Game::run() {
             update();
             render();
         } else if (allWordsGuessed) {
-            renderEndScreen();
+            renderEndOfWordsScreen();
         } else {
             renderStartScreen();
         }
@@ -463,7 +485,7 @@ void Game::run() {
 }
 
 
-void Game::renderEndScreen() {
+void Game::renderEndOfWordsScreen() {
     window.clear();
 
     sf::Text endText(settings.getFont(), "You guessed all words! Congratulations!", 50);
