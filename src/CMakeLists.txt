@@ -23,6 +23,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+FetchContent_Declare(
+        NFD
+        GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
+        GIT_TAG v1.0.0
+)
+FetchContent_MakeAvailable(NFD)
+
 add_executable(ape_quest_type
         main.cpp
         Word.cpp
@@ -32,6 +39,6 @@ add_executable(ape_quest_type
         ../include/Settings.h
 )
 
-target_link_libraries(ape_quest_type PRIVATE fmt SFML::Graphics SFML::Window SFML::System)
+target_link_libraries(ape_quest_type PRIVATE fmt SFML::Graphics SFML::Window SFML::System nfd)
 
 file(COPY ${CMAKE_SOURCE_DIR}/../assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

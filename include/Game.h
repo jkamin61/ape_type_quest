@@ -38,7 +38,7 @@ private:
 
     void exitGame();
 
-    void renderEndScreen();
+    void renderEndOfWordsScreen();
 
     void loadAvailableFonts(const std::string &directory);
 
@@ -47,6 +47,10 @@ private:
     void renderDifficultySelectionScreen();
 
     void goBackToMenu();
+
+    void renderUploadWordsScreen();
+
+    void renderExceedMissedWordsScreen();
 
     sf::RenderWindow window;
     sf::RectangleShape startButton;
