@@ -58,6 +58,7 @@ private:
     sf::Text easyText;
     sf::Text mediumText;
     sf::Text hardText;
+    sf::Text backText;
     Settings settings;
     std::vector<std::string> wordList;
     std::vector<Word> words;

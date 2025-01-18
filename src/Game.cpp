@@ -10,6 +10,7 @@ Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
       easyText(settings.getFont(), "Easy", 30),
       mediumText(settings.getFont(), "Medium", 30), hardText(settings.getFont(), "Hard", 30),
+      backText(settings.getFont(), "Back to Menu", 30),
       backgroundSpeed(100.0f), backgroundX(0.0f), score(0), level(1), allWordsGuessed(false),
       gameStarted(false), cursorVisible(true), notTypedWords(0), wordsLoaded(false), speedFactor(0.35f) {
     window.setFramerateLimit(60);
@@ -25,7 +26,6 @@ Game::Game()
     loadWordsFromFile("assets/words.txt");
     checkWord();
     setupStartMenuButtons();
-    gameClock.restart();
 }
 
 void Game::setupStartMenuButtons() {
@@ -121,7 +121,7 @@ void Game::renderFontSelectionScreen() {
 
     sf::Text title(settings.getFont(), "Select a Font", 50);
     title.setFillColor(sf::Color::White);
-    title.setPosition({window.getSize().x / 2.0f - title.getGlobalBounds().size.y / 2.0f, 20});
+    title.setPosition({window.getSize().x / 2.0f - title.getGlobalBounds().size.x / 2, 20.f});
     window.draw(title);
 
     float yPosition = 100.0f;
@@ -137,6 +137,13 @@ void Game::renderFontSelectionScreen() {
         window.draw(fontText);
         yPosition += 50.0f;
     }
+
+    backText.setPosition({50.f, 10.f});
+    backText.setFillColor(sf::Color::White);
+    if (backText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        backText.setFillColor(sf::Color::Yellow);
+    }
+    window.draw(backText);
 
     window.display();
 }
@@ -161,26 +168,33 @@ void Game::renderDifficultySelectionScreen() {
 
     sf::Text title(settings.getFont(), "Select a Difficulty", 50);
     title.setFillColor(sf::Color::White);
-    title.setPosition({centerX - title.getGlobalBounds().size.y / 2.0f, 20});
+    title.setPosition({centerX - title.getGlobalBounds().size.y / 2.0f, 20.f});
     window.draw(title);
-    easyText.setPosition({centerX - 50, centerY - 100});
+    easyText.setPosition({50.0f, 100.0f});
     easyText.setFillColor(sf::Color::White);
     if (easyText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
         easyText.setFillColor(sf::Color::Yellow);
     }
     window.draw(easyText);
-    mediumText.setPosition({centerX - 50, centerY});
+    mediumText.setPosition({50.0f, 150.0f});
     mediumText.setFillColor(sf::Color::White);;
     if (mediumText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
         mediumText.setFillColor(sf::Color::Yellow);
     }
     window.draw(mediumText);
-    hardText.setPosition({centerX - 50, centerY + 100});
+    hardText.setPosition({50.0f, 200.0f});
     hardText.setFillColor(sf::Color::White);;
     if (hardText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
         hardText.setFillColor(sf::Color::Yellow);
     }
     window.draw(hardText);
+
+    backText.setPosition({50.f, 10.f});
+    backText.setFillColor(sf::Color::White);
+    if (backText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        backText.setFillColor(sf::Color::Yellow);
+    }
+    window.draw(backText);
 
     window.display();
 }
@@ -316,6 +330,7 @@ void Game::processEvents() {
         } else if (event->is<sf::Event::MouseButtonPressed>()) {
             if (!gameStarted && startButton.getGlobalBounds().contains(
                     window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                gameClock.restart();
                 startGame();
             } else if (exitButton.getGlobalBounds().contains(
                 window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
@@ -347,7 +362,12 @@ void Game::processEvents() {
                                         settings.loadFont(availableFonts[i]);
                                         return;
                                     }
-
+                                    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && backText.
+                                        getGlobalBounds().
+                                        contains(mousePosition)) {
+                                        goBackToMenu();
+                                        return;
+                                    }
                                     yPosition += 50.0f;
                                 }
                             }
@@ -376,6 +396,11 @@ void Game::processEvents() {
                                 } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && hardText.
                                            getGlobalBounds().contains(mousePosition)) {
                                     speedFactor = 0.45f;
+                                    return;
+                                }
+                                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && backText.getGlobalBounds().
+                                    contains(mousePosition)) {
+                                    goBackToMenu();
                                     return;
                                 }
                             }
