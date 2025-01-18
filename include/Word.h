@@ -11,10 +11,16 @@ public:
     bool isOffScreen(float bound) const;
     const sf::Text& getText() const;
     void resetPosition(const sf::Vector2f& newPosition);
+    void markAsMatched();
+    bool isMatchExpired(float duration) const;
+    bool matched() const;
+    void setSpeed(float newSpeedFactor);
 
 private:
     sf::Text wordText;
     sf::Vector2f speed;
+    bool isMatched;
+    sf::Clock matchTimer;
 };
 
 #endif
