@@ -10,24 +10,43 @@
 class Game {
 public:
     Game();
+
     void run();
 
 private:
     void setupStartMenuButtons();
+
     void startGame();
+
     void processEvents();
+
     void update();
+
     void render();
+
     void renderStartScreen();
-    void loadWordsFromFile(const std::string& filename);
+
+    void loadWordsFromFile(const std::string &filename);
+
     void checkAllWordsGuessed();
+
     void checkWord();
+
     void loadNextWords();
+
     void countMissedWords();
+
     void exitGame();
+
     void renderEndScreen();
-    void loadAvailableFonts(const std::string& directory);
+
+    void loadAvailableFonts(const std::string &directory);
+
     void renderFontSelectionScreen();
+
+    void renderDifficultySelectionScreen();
+
+    void goBackToMenu();
 
     sf::RenderWindow window;
     sf::RectangleShape startButton;
@@ -36,6 +55,9 @@ private:
     sf::RectangleShape chooseFontButton;
     sf::RectangleShape chooseDifficultyButton;
     sf::RectangleShape uploadWordsButton;
+    sf::Text easyText;
+    sf::Text mediumText;
+    sf::Text hardText;
     Settings settings;
     std::vector<std::string> wordList;
     std::vector<Word> words;
@@ -54,6 +76,7 @@ private:
     bool cursorVisible;
     int notTypedWords;
     bool wordsLoaded;
+    float speedFactor;
 };
 
 #endif // GAME_H

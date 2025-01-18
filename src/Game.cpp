@@ -8,8 +8,10 @@
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Monkey Typer", sf::Style::None),
+      easyText(settings.getFont(), "Easy", 30),
+      mediumText(settings.getFont(), "Medium", 30), hardText(settings.getFont(), "Hard", 30),
       backgroundSpeed(100.0f), backgroundX(0.0f), score(0), level(1), allWordsGuessed(false),
-      gameStarted(false), cursorVisible(true), notTypedWords(0), wordsLoaded(false) {
+      gameStarted(false), cursorVisible(true), notTypedWords(0), wordsLoaded(false), speedFactor(0.35f) {
     window.setFramerateLimit(60);
     srand(static_cast<unsigned>(time(0)));
 
@@ -20,11 +22,9 @@ Game::Game()
     if (!backgroundTexture.loadFromFile("assets/background.jpg")) {
         throw std::runtime_error("Failed to load background image!");
     }
-
     loadWordsFromFile("assets/words.txt");
     checkWord();
     setupStartMenuButtons();
-
     gameClock.restart();
 }
 
@@ -154,6 +154,38 @@ void Game::loadAvailableFonts(const std::string &directory) {
     }
 }
 
+void Game::renderDifficultySelectionScreen() {
+    window.clear();
+    float centerX = window.getSize().x / 2.0f;
+    float centerY = window.getSize().y / 2.0f;
+
+    sf::Text title(settings.getFont(), "Select a Difficulty", 50);
+    title.setFillColor(sf::Color::White);
+    title.setPosition({centerX - title.getGlobalBounds().size.y / 2.0f, 20});
+    window.draw(title);
+    easyText.setPosition({centerX - 50, centerY - 100});
+    easyText.setFillColor(sf::Color::White);
+    if (easyText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        easyText.setFillColor(sf::Color::Yellow);
+    }
+    window.draw(easyText);
+    mediumText.setPosition({centerX - 50, centerY});
+    mediumText.setFillColor(sf::Color::White);;
+    if (mediumText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        mediumText.setFillColor(sf::Color::Yellow);
+    }
+    window.draw(mediumText);
+    hardText.setPosition({centerX - 50, centerY + 100});
+    hardText.setFillColor(sf::Color::White);;
+    if (hardText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        hardText.setFillColor(sf::Color::Yellow);
+    }
+    window.draw(hardText);
+
+    window.display();
+}
+
+
 void Game::render() {
     window.clear();
 
@@ -216,6 +248,10 @@ void Game::render() {
     exitButton.setFillColor(sf::Color::Transparent);
     exitButton.setPosition({static_cast<float>(window.getSize().x) - 100.f, 10.f});
     window.draw(exitButton);
+
+    if (exitText.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+        exitText.setFillColor(sf::Color::Yellow);
+    }
 
     window.display();
 }
@@ -306,7 +342,8 @@ void Game::processEvents() {
                                     sf::Text fontText(settings.getFont(), availableFonts[i], 30);
                                     fontText.setPosition({50.0f, yPosition});
 
-                                    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && fontText.getGlobalBounds().contains(mousePosition)) {
+                                    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && fontText.
+                                        getGlobalBounds().contains(mousePosition)) {
                                         settings.loadFont(availableFonts[i]);
                                         return;
                                     }
@@ -319,7 +356,32 @@ void Game::processEvents() {
                 }
             } else if (!gameStarted && chooseDifficultyButton.getGlobalBounds().contains(
                            window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                fmt::print("Choose difficulty button clicked\n");
+                while (window.isOpen()) {
+                    renderDifficultySelectionScreen();
+                    while (window.pollEvent()) {
+                        if (event->is<sf::Event::Closed>()) {
+                            window.close();
+                        } else if (event->is<sf::Event::MouseButtonPressed>()) {
+                            const auto &mouseEvent = event->getIf<sf::Event::MouseButtonPressed>();
+                            sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                            if (mouseEvent->button == sf::Mouse::Button::Left) {
+                                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && easyText.getGlobalBounds().
+                                    contains(mousePosition)) {
+                                    speedFactor = 0.25f;
+                                    return;
+                                } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && mediumText.
+                                           getGlobalBounds().contains(mousePosition)) {
+                                    speedFactor = 0.35f;
+                                    return;
+                                } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && hardText.
+                                           getGlobalBounds().contains(mousePosition)) {
+                                    speedFactor = 0.45f;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
             } else if (!gameStarted && uploadWordsButton.getGlobalBounds().contains(
                            window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                 fmt::print("Upload words button clicked\n");
@@ -411,7 +473,7 @@ void Game::loadNextWords() {
         }
         int randomIndex = rand() % wordList.size();
         std::string randomWord = wordList[randomIndex];
-        words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * 0.35f);
+        words.emplace_back(randomWord, sf::Vector2f(0, yPosition), settings.getFont(), level * speedFactor);
         yPosition += 40 + rand() % 60;
     }
 
@@ -420,6 +482,11 @@ void Game::loadNextWords() {
 
 void Game::exitGame() {
     window.close();
+}
+
+void Game::goBackToMenu() {
+    gameStarted = false;
+    setupStartMenuButtons();
 }
 
 void Game::countMissedWords() {
